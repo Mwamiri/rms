@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ${REGISTRY:-localhost}/rms-app:latest
     container_name: rms_app
     restart: unless-stopped
     ports:
@@ -14,49 +15,68 @@ services:
       - ./storage:/var/www/html/storage
       - ./config:/var/www/html/config
       - ./public:/var/www/html/public
+      - ./app:/var/www/html/app
     environment:
-      - DB_HOST=mysql
-      - DB_DATABASE=${DB_DATABASE:-rms_db}
-      - DB_USERNAME=${DB_USERNAME:-rms_user}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - APP_URL=${APP_URL:-http://localhost}
-      - APP_DEBUG=${APP_DEBUG:-false}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-rms_db}
+      DB_USERNAME: ${DB_USERNAME:-rms_user}
+      DB_PASSWORD: ${DB_PASSWORD:-secure_password}
+      APP_URL: ${APP_URL:-http://localhost}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_ENV: ${APP_ENV:-production}
+      PHP_MEMORY_LIMIT: 512M
+      PHP_MAX_EXECUTION_TIME: 300
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - rms_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   mysql:
     image: mysql:8.0
     container_name: rms_mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
       MYSQL_DATABASE: ${DB_DATABASE:-rms_db}
       MYSQL_USER: ${DB_USERNAME:-rms_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secure_password}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./config/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     ports:
       - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=200
     networks:
       - rms_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin:latest
     container_name: rms_phpmyadmin
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_USER: ${DB_USERNAME:-rms_user}
-      PMA_PASSWORD: ${DB_PASSWORD}
+      PMA_PASSWORD: ${DB_PASSWORD:-secure_password}
     ports:
       - "8080:80"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - rms_network
 

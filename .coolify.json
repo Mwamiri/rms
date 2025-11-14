@@ -1,0 +1,45 @@
+{
+  "buildpack": "docker-compose",
+  "deploymentType": "docker-compose",
+  "settings": {
+    "dockerComposeFile": "docker-compose.yml",
+    "buildContext": ".",
+    "startCommand": "docker-compose up -d",
+    "stopCommand": "docker-compose down"
+  },
+  "services": {
+    "app": {
+      "type": "application",
+      "name": "rms-app",
+      "image": "rms_app:latest"
+    },
+    "database": {
+      "type": "database",
+      "name": "rms-mysql",
+      "image": "mysql:8.0"
+    },
+    "phpmyadmin": {
+      "type": "utility",
+      "name": "rms-phpmyadmin",
+      "image": "phpmyadmin:latest"
+    }
+  },
+  "ports": {
+    "app": 80,
+    "https": 443,
+    "phpmyadmin": 8080
+  },
+  "volumes": {
+    "mysql_data": "/var/lib/mysql",
+    "storage": "/var/www/html/storage"
+  },
+  "healthCheck": {
+    "enabled": true,
+    "path": "/",
+    "port": 80,
+    "interval": 30,
+    "timeout": 10,
+    "retries": 3,
+    "startPeriod": 60
+  }
+}

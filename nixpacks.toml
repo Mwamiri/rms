@@ -1,0 +1,11 @@
+[build]
+# Use Docker Compose for building
+startCmd = "docker-compose up -d"
+
+[start]
+# Start command - Docker Compose handles this
+cmd = ""
+
+[variables]
+PHP_VERSION = "8.1"
+COMPOSER_CACHE_DIR = "/tmp/composer-cache"
