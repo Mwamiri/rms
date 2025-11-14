@@ -1,0 +1,47 @@
+# Ignore development files
+.env
+.env.local
+.env.development
+
+# Ignore production secrets (rename .env.production to .env on server)
+# .env.production
+
+# Ignore local development
+/vendor/
+node_modules/
+*.log
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore backup files
+*.bak
+*.backup
+*~
+
+# Ignore temporary files
+/tmp/
+/temp/
+*.tmp
+
+# Keep important directories but ignore contents initially
+storage/logs/*
+storage/backups/*
+storage/uploads/*
+!storage/logs/.gitkeep
+!storage/backups/.gitkeep
+!storage/uploads/.gitkeep
+
+# Ignore Docker volumes
+mysql_data/
+
+# Ignore local testing
+phpunit.xml
+.phpunit.result.cache

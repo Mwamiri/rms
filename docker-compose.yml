@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rms_app
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./config:/var/www/html/config
+      - ./public:/var/www/html/public
+    environment:
+      - DB_HOST=mysql
+      - DB_DATABASE=${DB_DATABASE:-rms_db}
+      - DB_USERNAME=${DB_USERNAME:-rms_user}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - APP_URL=${APP_URL:-http://localhost}
+      - APP_DEBUG=${APP_DEBUG:-false}
+    depends_on:
+      - mysql
+    networks:
+      - rms_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: rms_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE:-rms_db}
+      MYSQL_USER: ${DB_USERNAME:-rms_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./config/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - rms_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: rms_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USERNAME:-rms_user}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - rms_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  rms_network:
+    driver: bridge

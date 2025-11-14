@@ -1,0 +1,65 @@
+{
+  "name": "athletics-rms",
+  "version": "1.0.0",
+  "description": "Athletics Federation Results Management System - Cloud VPS 10 Ready",
+  "type": "project",
+  "scripts": {
+    "start": "php -S localhost:8000 -t public/",
+    "test": "php public/index.php",
+    "deploy": "echo 'Ready for Coolify deployment'",
+    "backup": "php scripts/backup.php",
+    "install": "php installer/index.php"
+  },
+  "engines": {
+    "php": ">=7.4"
+  },
+  "config": {
+    "platform": "cloud-vps-10",
+    "deployment": "coolify",
+    "database": "mysql-8.0",
+    "webserver": "apache-2.4"
+  },
+  "requirements": {
+    "php": "8.1",
+    "extensions": [
+      "pdo",
+      "pdo_mysql", 
+      "mysqli",
+      "json",
+      "gd",
+      "zip"
+    ]
+  },
+  "deployment": {
+    "target": "cloud-vps-10",
+    "memory": "512M",
+    "cpu": "1 vCore",
+    "storage": "5GB",
+    "recommended": {
+      "memory": "4-8GB", 
+      "cpu": "2-4 vCores",
+      "storage": "80-160GB"
+    }
+  },
+  "features": {
+    "events": true,
+    "athletes": true,
+    "results": true,
+    "reports": true,
+    "backups": true,
+    "rankings": true,
+    "imports": true,
+    "registrations": true
+  },
+  "keywords": [
+    "athletics",
+    "results-management",
+    "php",
+    "mysql",
+    "cloud-vps",
+    "coolify",
+    "docker"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/athletics-rms"
+}

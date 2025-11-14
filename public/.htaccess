@@ -1,0 +1,51 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Remove WWW
+    RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+    
+    # Don't rewrite existing files and directories
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # Rewrite to index.php
+    RewriteRule ^(.*)$ index.php/$1 [QSA,L]
+    
+    # Protect sensitive files
+    RewriteRule ^\.env$ - [F,L]
+    RewriteRule ^storage/.*$ - [F,L]
+</IfModule>
+
+# If mod_rewrite not available
+<IfModule !mod_rewrite.c>
+    DirectoryIndex index.php
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# PHP settings
+<IfModule mod_php.c>
+    php_value max_upload_filesize 256M
+    php_value post_max_size 256M
+    php_value max_execution_time 300
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript
+</IfModule>
+
+# Caching
+<FilesMatch "\.(jpg|jpeg|png|gif|ico|css|js|svg)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
