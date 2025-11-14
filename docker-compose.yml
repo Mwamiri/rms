@@ -73,7 +73,7 @@ services:
       PMA_USER: ${DB_USERNAME:-rms_user}
       PMA_PASSWORD: ${DB_PASSWORD:-secure_password}
     ports:
-      - "8080:80"
+      - "${PHPMYADMIN_PORT:-8080}:80"
     depends_on:
       mysql:
         condition: service_healthy
